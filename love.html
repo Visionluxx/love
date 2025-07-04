@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Love Me?</title>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    @font-face {
+      font-family: 'PixelFont';
+      src: url('https://fonts.gstatic.com/s/pressstart2p/v12/e3t4euO8T-267oIAQAu6jDQyK1n1tGZ7.woff2') format('woff2');
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+</head>
+<body>
+  <script>
+    function troy(){
+      game.destroy (true)
+    }
+  </script>
+  <script>
+    const config = {
+      type: Phaser.AUTO,
+      width: window.innerWidth,
+      height: window.innerHeight,
+      backgroundColor: '#f5f5dc',
+      scene: {
+        preload: preload,
+        create: create
+      }
+    };
+
+    const game = new Phaser.Game(config);
+    
+    
+
+    let noClickCount = 0;
+    let noButton;
+    let yesButton;
+
+    function preload() {
+      this.load.script('webfont', 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js');
+    }
+
+    function create() {
+      const centerX = this.cameras.main.centerX;
+      const centerY = this.cameras.main.centerY;
+
+      WebFont.load({
+        google: {
+          families: ['Press Start 2P']
+        },
+        active: () => {
+          this.add.text(centerX, centerY - 100, 'Love me?', {
+            fontFamily: '"Press Start 2P"',
+            fontSize: '24px',
+            color: '#000'
+          }).setOrigin(0.5);
+
+          yesButton = createButton.call(this, centerX - 100, centerY + 20, 'YES', ()=>{
+            game.destroy(true)
+            setTimeout(()=>{
+              fetch('after.html')
+              .then(res => res.text())
+              .then(html => {
+                document.open();      
+                document.write(html); 
+                document.close();    
+              });
+            }, 1000)
+          }
+          );
+
+          noButton = createButton.call(this, centerX + 100, centerY + 20, 'NO', () => {
+            noClickCount++;
+
+            if (noClickCount >= 10) {
+              game.destroy(true)
+              setTimeout(()=>{
+                fetch('after.html')
+                .then(res => res.text())
+                .then(html => {
+                document.open();      
+                document.write(html); 
+                document.close();    
+                });
+              }, 1000)
+              return;
+            }
+
+            const newX = Phaser.Math.Between(50, this.game.config.width - 100);
+            const newY = Phaser.Math.Between(100, this.game.config.height - 70);
+            noButton.setPosition(newX, newY);
+          });
+        }
+      });
+    }
+
+    function createButton(x, y, text, callback) {
+      const button = this.add.text(x, y, text, {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '16px',
+        backgroundColor: '#000',
+        color: '#fff',
+        padding: { x: 10, y: 6 },
+        align: 'center',
+        fixedWidth: 100
+      })
+        .setOrigin(0.5)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerover', () => button.setStyle({ backgroundColor: '#333' }))
+        .on('pointerout', () => button.setStyle({ backgroundColor: '#000' }))
+        .on('pointerdown', callback);
+
+      return button;
+    }
+  </script>
+</body>
+</html>
